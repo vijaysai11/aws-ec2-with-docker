@@ -17,7 +17,11 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
       with:
-        region: ${{ secrets.AWS_REGION }}  # Ensure the region is provided here.
+        mask-password: true
+        registry-type: private
+        skip-logout: false
+      env:
+        AWS_REGION: ${{ secrets.AWS_REGION }}  # Set the AWS region here in the environment
 
     - name: Build and Push Docker Images
       env:
