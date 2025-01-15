@@ -16,10 +16,13 @@ jobs:
     - name: Log in to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
+      with:
+       region: ${{ secrets.AWS_REGION }}  # Ensure the region is provided here.
+
 
     - name: Build and Push Docker Images
       env:
-        AWS_REGION: us-east-1
+        AWS_REGION: eu-north-1
         AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
         ECR_REPO: my-ecr-repo
       run: |
@@ -30,7 +33,7 @@ jobs:
 
     - name: Deploy to EC2
       env:
-        AWS_REGION: us-east-1
+        AWS_REGION: eu-north-1
         EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
         EC2_KEY: ${{ secrets.EC2_KEY }}
       run: |

@@ -5,9 +5,11 @@ const App = () => {
   const [data, setData] = useState(null);
 
   useEffect(() => {
+    // Dynamically get the EC2 public IP or hostname
+    const backendUrl = `http://${window.location.hostname}:5000/api/data`;
     // Replace with your Python backend URL
     axios
-      .get("http://localhost:5000/api/data")
+      .get(backendUrl)
       .then((response) => setData(response.data))
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
