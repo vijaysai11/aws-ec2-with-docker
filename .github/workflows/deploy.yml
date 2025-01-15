@@ -1,0 +1,40 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Log in to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build and Push Docker Images
+      env:
+        AWS_REGION: us-east-1
+        AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        ECR_REPO: my-ecr-repo
+      run: |
+        docker-compose build
+        docker tag react-app:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:react
+        docker tag python-backend:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:backend
+        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO
+
+    - name: Deploy to EC2
+      env:
+        AWS_REGION: us-east-1
+        EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+        EC2_KEY: ${{ secrets.EC2_KEY }}
+      run: |
+        ssh -i "$EC2_KEY" ec2-user@your-ec2-public-ip << EOF
+          docker-compose pull
+          docker-compose up -d
+        EOF
